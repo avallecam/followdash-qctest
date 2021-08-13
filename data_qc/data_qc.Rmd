@@ -331,5 +331,19 @@ Defined as observations with values that are not valid within
 the plausible range of values in a determined scale.
 
 
+About
+=====================================
 
+__Contact__
 
+Andree Valle Campos | 
+[`@avallecam`](https://twitter.com/avallecam) |
+avallecam@gmail.com
+
+Project Link: https://github.com/avallecam/followdash-qctest
+
+__Acknowledgements__
+
+Many thanks to the Centro Nacional de Epidemiología, Prevención y Control 
+de Enfermedades [(CDC Perú)](https://www.dge.gob.pe/portalnuevo/)
+for the opportunity to work on this project.

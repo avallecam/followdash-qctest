@@ -5,9 +5,9 @@ account: avallecam
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4490088
-bundleId: 4920250
+bundleId: 4920414
 url: https://avallecam.shinyapps.io/data_qc/
-when: 1628871656.55059
-lastSyncTime: 1628871656.55059
+when: 1628874425.04212
+lastSyncTime: 1628874425.04212
 asMultiple: FALSE
 asStatic: FALSE

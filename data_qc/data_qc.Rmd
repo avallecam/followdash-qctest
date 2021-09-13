@@ -21,8 +21,13 @@ library(Hmisc)
 library(lubridate)
 
 # MAYUS <- palmerpenguins::penguins
-# MAYUS <- dplyr::bind_rows(palmerpenguins::penguins,palmerpenguins::penguins[1:3,])
-# dplyr::bind_rows(palmerpenguins::penguins,palmerpenguins::penguins[1:3,]) %>% readr::write_csv("palmer_test.csv")
+
+# crear replicas de observaciones
+# MAYUS <- dplyr::bind_rows(palmerpenguins::penguins,
+#                           palmerpenguins::penguins[1:3,])
+# dplyr::bind_rows(palmerpenguins::penguins,
+#                  palmerpenguins::penguins[1:3,]) %>% 
+#   readr::write_csv("palmer_test.csv")
 MAYUS <- dplyr::bind_rows(outbreaks::ebola_sim_clean$linelist,
                           outbreaks::ebola_sim_clean$linelist[1:3,])
 ```

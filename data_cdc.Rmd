@@ -41,7 +41,9 @@ updateUpload = reactive({
 MAYUSRVE = reactive({
 
   if(is.null(input$hot)){MAYUS}
-  else if(!is.null(input$InputMAYUS)){read.csv(input$InputMAYUS$datapath)} #%>% select(-X)
+  else 
+    if(!is.null(input$InputMAYUS)){read.csv(input$InputMAYUS$datapath)} 
+  #%>% select(-X)
   else{
   hot_to_r(input$hot)
   }

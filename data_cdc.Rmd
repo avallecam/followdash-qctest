@@ -168,6 +168,7 @@ Data
 
 DT::renderDT({
   MAYUSRVE() %>% 
+    select(input$columntoselect) %>% 
   mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
   DT::datatable(
     options = list(
@@ -181,7 +182,7 @@ Categorical
 
 ```{r}
 renderPlot({
-  d <- describe(MAYUSRVE())
+  d <- describe(MAYUSRVE() %>% select(input$columntoselect))
   plot(d)$Categorical
 })
 ```

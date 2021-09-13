@@ -19,6 +19,7 @@ library(rhandsontable)
 library(palmerpenguins)
 library(Hmisc)
 library(lubridate)
+library(shinyWidgets)
 
 # MAYUS <- palmerpenguins::penguins
 
@@ -49,6 +50,25 @@ MAYUSRVE = reactive({
 
 INOUTZONE {.sidebar}
 ===================================
+
+<!-- Slider zone -->
+
+```{r}
+
+renderUI({
+  pickerInput(inputId = 'selectcolumn',
+            label = 'Select column', 
+            choices = colnames(MAYUSRVE()),
+            options = list(`actions-box` = TRUE),
+            multiple = T #, 
+            # selected = c("Peru", "Brazil", "Colombia", 
+            #              "Ecuador", "Chile", "Argentina",  
+            #              "Uruguay", "Paraguay", "Bolivia")
+            )
+})
+
+```
+
 
 <!-- Slider zone -->
 

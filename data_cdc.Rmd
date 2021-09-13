@@ -131,9 +131,12 @@ Download Edited Dataset
 
 ```{r}
 
-downname <- str_c(Sys.time() %>% janitor::make_clean_names(),"-edited.csv")
+downname <- str_c(Sys.time() %>% 
+                    janitor::make_clean_names(),
+                  "-edited.csv")
 
-downloadButton(outputId = "StarWarsDownload", label = "Star Wars Download")
+downloadButton(outputId = "StarWarsDownload", 
+               label = "Star Wars Download")
 downloadHandler(
   filename = function(){downname},
   # filename = function(){"Star_Wars_Download.csv"},

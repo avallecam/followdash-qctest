@@ -106,11 +106,15 @@ renderUI({
   pickerInput(inputId = 'optionstofilter',
               label = 'Categories to filter', 
               choices = MAYUSRVE() %>% 
-                # dplyr::select(input$columntofilter) %>%
-                dplyr::count(input$columntofilter) %>%
-                # colnames()
-                pull(var = 1) %>% 
-                as.character()
+                dplyr::select(input$columntofilter) %>%
+                unique() %>% 
+                rownames_to_column() %>% 
+                pivot_wider(names_from = input$columntofilter,
+                            values_from = rowname) %>% 
+                colnames()
+              # count(input$columntofilter) %>%
+                # pull(var = 1) %>% 
+                # as.character()
               ,
             options = list(`actions-box` = TRUE),
             multiple = T #, 

@@ -107,6 +107,17 @@ downloadHandler(
 )
 ```
 
+Hands On
+=====================================
+
+<!-- Results zone -->
+
+```{r}
+output$hot = renderRHandsontable({
+  rhandsontable(MAYUSRVE(), height = 550) %>%  hot_rows()
+})
+rHandsontableOutput("hot")
+```
 
 
 Data
@@ -124,18 +135,6 @@ DT::renderDT({
 		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 
-```
-
-Hands On
-=====================================
-
-<!-- Results zone -->
-
-```{r}
-output$hot = renderRHandsontable({
-  rhandsontable(MAYUSRVE(), height = 550) %>%  hot_rows()
-})
-rHandsontableOutput("hot")
 ```
 
 Categorical

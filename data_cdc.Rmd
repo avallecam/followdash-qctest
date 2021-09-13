@@ -1,0 +1,354 @@
+---
+title: "Quality Control"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: flatly
+    orientation: rows
+    vertical_layout: scroll
+    # favicon: "img/favicon.png"
+runtime: shiny
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+library(datasets)
+library(tidyverse)
+library(rhandsontable)
+library(palmerpenguins)
+library(Hmisc)
+library(lubridate)
+
+# MAYUS <- palmerpenguins::penguins
+
+# crear replicas de observaciones
+# MAYUS <- dplyr::bind_rows(palmerpenguins::penguins,
+#                           palmerpenguins::penguins[1:3,])
+# dplyr::bind_rows(palmerpenguins::penguins,
+#                  palmerpenguins::penguins[1:3,]) %>% 
+#   readr::write_csv("palmer_test.csv")
+MAYUS <- dplyr::bind_rows(outbreaks::ebola_sim_clean$linelist,
+                          outbreaks::ebola_sim_clean$linelist[1:3,])
+```
+
+```{r}
+updateUpload = reactive({
+  
+})
+
+MAYUSRVE = reactive({
+
+  if(is.null(input$hot)){MAYUS}
+  else if(!is.null(input$InputMAYUS)){read.csv(input$InputMAYUS$datapath)} #%>% select(-X)
+  else{
+  hot_to_r(input$hot)
+  }
+})
+```
+
+INOUTZONE {.sidebar}
+===================================
+
+<!-- Slider zone -->
+
+```{r}
+fileInput(inputId = "InputMAYUS",
+          label = "Choose CSV File",
+          multiple = TRUE,
+          accept = c("text/csv",
+                     "text/comma-separated-values,text/plain",
+                     ".csv"))
+```
+
+```{r,eval=FALSE}
+actionButton(inputId = "apply", label = "Apply", icon = icon("play"))
+observeEvent(eventExpr = input$apply, 
+  handlerExpr = {
+      req(input$file1)
+      file <- read_csv(input$file1$datapath)
+      rv$data <- file
+  }, ignoreNULL = FALSE)
+```
+
+<!-- Slider zone -->
+
+Download Edited Dataset
+
+```{r}
+
+downname <- str_c(Sys.time() %>% janitor::make_clean_names(),"-edited.csv")
+
+downloadButton(outputId = "StarWarsDownload", label = "Star Wars Download")
+downloadHandler(
+  filename = function(){downname},
+  # filename = function(){"Star_Wars_Download.csv"},
+  content = function(file){
+    write.csv(MAYUSRVE(), file)
+  }
+)
+```
+
+
+
+Data
+===================================
+
+<!-- Results zone -->
+
+```{r}
+
+DT::renderDT({
+  MAYUSRVE() %>% 
+  mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+  DT::datatable(
+    options = list(
+		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+})
+
+```
+
+Hands On
+=====================================
+
+<!-- Results zone -->
+
+```{r}
+output$hot = renderRHandsontable({
+  rhandsontable(MAYUSRVE(), height = 550) %>%  hot_rows()
+})
+rHandsontableOutput("hot")
+```
+
+Categorical
+=====================================
+
+```{r}
+renderPlot({
+  d <- describe(MAYUSRVE())
+  plot(d)$Categorical
+})
+```
+
+Continuous 
+====================================
+
+```{r}
+renderPlot({
+  d <- describe(MAYUSRVE())
+  plot(d)$Continuous
+})
+
+```
+
+Dictionary
+==================================
+
+Row {data-height=1000}
+-------------------------------------
+
+```{r}
+
+renderUI({
+  html(contents(MAYUSRVE()), maxlevels=10, levelType='table')
+})
+
+```
+
+
+Detailed
+=====================================
+
+Row {.tabset}
+-------------------------------------
+
+### Is.Character
+
+```{r}
+library(rlang)
+
+DT::renderDT({
+  MAYUSRVE() %>% 
+  select_if(.predicate = is.character) %>%
+  skimr::skim() %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+    options = list(
+		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+})
+```
+
+### Is.Date
+
+```{r}
+DT::renderDT({
+MAYUSRVE() %>%
+  select_if(.predicate = is.Date) %>%
+  skimr::skim() %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+    options = list(
+		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+})
+```
+
+### Is.Logical
+
+```{r}
+DT::renderDT({
+MAYUSRVE() %>%
+  select_if(.predicate = is.logical) %>%
+  skimr::skim() %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+    options = list(
+		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+})
+```
+
+
+### Is.Numeric
+
+```{r}
+DT::renderDT({
+MAYUSRVE() %>%
+  select_if(.predicate = is.numeric) %>%
+  skimr::skim() %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+    options = list(
+		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+})
+```
+
+
+Mixed
+=====================================
+
+```{r}
+
+library(summarytools)
+
+renderUI({
+  print(dfSummary(MAYUSRVE(),
+            plain.ascii = FALSE, 
+                        style = "grid", 
+                        graph.magnif = 0.75, 
+                        valid.col = FALSE, 
+                        tmp.img.dir = "/tmp"), 
+      method = 'render',
+      headings = FALSE,
+      bootstrap.css = FALSE)
+})
+
+```
+
+
+Tabular
+=====================================
+
+Row {.tabset data-height=1000}
+-----------------------------------------------------------------------
+
+### Local
+
+```{r}
+
+renderPrint({
+  compareGroups::compareGroups(formula = all ~ .,
+                             data = MAYUSRVE() %>% 
+                               mutate(all="TRUE")) %>% 
+    compareGroups::createTable(show.p.overall = F)
+})
+
+```
+
+### Web
+
+#### link  {data-height=50}
+
+__Use compareGroups__ http://www.comparegroups.eu/wui
+
+#### figure 
+
+![](img/comparegroups.PNG)
+
+
+Detect
+=====================================
+
+Row {.tabset data-height=1000}
+-----------------------------------------------------------------------
+
+
+### Duplicated observations
+
+Defined as complete rows with the same values
+
+```{r}
+# data_input <- mdr_cases
+# #number of raw and distinct observations
+# nrow(data_input)
+# nrow(distinct(data_input))
+
+#which observations are replicates?
+DT::renderDT({
+MAYUSRVE() %>%   
+  group_by_all() %>% 
+  filter(n()>1) %>% 
+  # arrange(hash_short) %>%
+  ungroup()
+})
+```
+
+### Missing values
+
+Defined as observations inside a variable without values
+
+```{r}
+DT::renderDT({
+MAYUSRVE() %>% 
+  naniar::miss_var_summary()
+})
+```
+
+Definitions
+=====================================
+
+__Duplicated observations__
+
+Defined as complete rows with the same values.
+
+__Missing values__
+
+Defined as observations inside a variable without values.
+
+
+__Inconsistent values__
+
+Defined as observations with values that are not valid when 
+compared with other variables.
+
+
+__Implausible values__
+
+Defined as observations with values that are not valid within
+the plausible range of values in a determined scale.
+
+
+About
+=====================================
+
+__Contact__
+
+Andree Valle Campos | 
+[`@avallecam`](https://twitter.com/avallecam) |
+avallecam@gmail.com
+
+Project Link: https://github.com/avallecam/followdash-qctest
+
+__Acknowledgements__
+
+Many thanks to the Centro Nacional de Epidemiología, Prevención y Control 
+de Enfermedades [(CDC Perú)](https://www.dge.gob.pe/portalnuevo/)
+for the opportunity to work on this project.

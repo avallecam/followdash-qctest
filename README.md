@@ -14,6 +14,11 @@ shinyapp using several packages for descriptive data outputs.
 This is currently hosted in this site:
 <https://avallecam.shinyapps.io/data_qc/>
 
+## Traducción
+
+La versión en español está disponible aquí:
+<https://avallecam.shinyapps.io/data_qc-es/>
+
 ## File
 
 The core file is in this rute: `data_qc/data_qc.Rmd`

@@ -94,8 +94,8 @@ renderUI({
             label = 'Columna a filtrar', 
             choices = colnames(MAYUSRVE()),
             options = list(`actions-box` = TRUE),
-            multiple = F #, 
-            # selected = colnames(MAYUSRVE())
+            multiple = F, 
+            selected = colnames(MAYUSRVE())[1]
             )
 })
 
@@ -117,8 +117,14 @@ renderUI({
                 # as.character()
               ,
             options = list(`actions-box` = TRUE),
-            multiple = T #, 
-            # selected = colnames(MAYUSRVE())
+            multiple = T, 
+            selected = MAYUSRVE() %>% 
+                dplyr::select(input$columntofilter) %>%
+                unique() %>% 
+                rownames_to_column() %>% 
+                pivot_wider(names_from = input$columntofilter,
+                            values_from = rowname) %>% 
+                colnames()
             )
 })
 ```
@@ -166,9 +172,15 @@ Datos 2
 
 ```{r}
 
+# ref: https://www.youtube.com/watch?v=MBNdyRQIvE4
+
 DT::renderDT({
   MAYUSRVE() %>% 
     select(input$columntoselect) %>% 
+    # filter(!!rlang::sym(input$columntofilter) %in% 
+    #          input$optionstofilter) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>%
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
       options = list(

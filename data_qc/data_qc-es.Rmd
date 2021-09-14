@@ -153,7 +153,7 @@ downloadHandler(
 )
 ```
 
-Datos 1
+Datos
 =====================================
 
 <!-- Results zone -->
@@ -166,7 +166,7 @@ rHandsontableOutput("hot")
 ```
 
 
-Datos 2
+Buscar
 ===================================
 
 <!-- Results zone -->

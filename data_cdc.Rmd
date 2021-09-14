@@ -195,7 +195,11 @@ Categoricas
 
 ```{r}
 renderPlot({
-  d <- describe(MAYUSRVE() %>% select(input$columntoselect))
+  d <- describe(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)))
   plot(d)$Categorical
 })
 ```
@@ -205,7 +209,11 @@ Contínuas
 
 ```{r}
 renderPlot({
-  d <- describe(MAYUSRVE() %>% select(input$columntoselect))
+  d <- describe(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)))
   plot(d)$Continuous
 })
 

@@ -425,7 +425,8 @@ DT::renderDT({
     select(input$columntoselect) %>% 
     filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
                            input$optionstofilter)) %>% 
-    naniar::miss_var_summary()
+    naniar::miss_var_summary() %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2))
 })
 ```
 

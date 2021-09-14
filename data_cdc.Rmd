@@ -228,8 +228,12 @@ Row {data-height=1000}
 ```{r}
 
 renderUI({
-  html(contents(MAYUSRVE() %>% select(input$columntoselect)), 
-       maxlevels=10, levelType='table')
+  html(contents(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter))), 
+    maxlevels=10, levelType='table')
 })
 
 ```
@@ -249,6 +253,8 @@ library(rlang)
 DT::renderDT({
   MAYUSRVE() %>% 
     select(input$columntoselect) %>% 
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
     select_if(.predicate = is.character) %>%
     skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
@@ -265,6 +271,8 @@ DT::renderDT({
 DT::renderDT({
   MAYUSRVE() %>% 
     select(input$columntoselect) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
     select_if(.predicate = is.Date) %>%
     skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
@@ -281,6 +289,8 @@ DT::renderDT({
 DT::renderDT({
   MAYUSRVE() %>% 
     select(input$columntoselect) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
     select_if(.predicate = is.logical) %>%
     skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
@@ -298,6 +308,8 @@ DT::renderDT({
 DT::renderDT({
   MAYUSRVE() %>%
     select(input$columntoselect) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
     select_if(.predicate = is.numeric) %>%
     skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
@@ -317,16 +329,19 @@ Mixto
 library(summarytools)
 
 renderUI({
-  print(dfSummary(MAYUSRVE() %>% 
-                    select(input$columntoselect),
-                  plain.ascii = FALSE, 
-                  style = "grid", 
-                  graph.magnif = 0.75, 
-                  valid.col = FALSE, 
-                  tmp.img.dir = "/tmp"), 
-        method = 'render',
-        headings = FALSE,
-        bootstrap.css = FALSE)
+  print(dfSummary(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)),
+    plain.ascii = FALSE, 
+    style = "grid", 
+    graph.magnif = 0.75, 
+    valid.col = FALSE, 
+    tmp.img.dir = "/tmp"), 
+    method = 'render',
+    headings = FALSE,
+    bootstrap.css = FALSE)
 })
 
 ```
@@ -343,10 +358,13 @@ Row {.tabset data-height=1000}
 ```{r}
 
 renderPrint({
-  compareGroups::compareGroups(formula = all ~ .,
-                               data = MAYUSRVE() %>% 
-                                 select(input$columntoselect) %>% 
-                                 mutate(all="TRUE")) %>% 
+  compareGroups::compareGroups(
+    formula = all ~ .,
+    data = MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)) %>% 
+      mutate(all="TRUE")) %>% 
     compareGroups::createTable(show.p.overall = F)
 })
 
@@ -387,7 +405,9 @@ más duplicados se encontrarán.
 #which observations are replicates?
 DT::renderDT({
   MAYUSRVE() %>% 
-    select(input$columntoselect) %>%   
+    select(input$columntoselect) %>%  
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
     group_by_all() %>% 
     filter(n()>1) %>% 
     # arrange(hash_short) %>%
@@ -403,6 +423,8 @@ Definidos como observaciones dentro de una variable sin valores.
 DT::renderDT({
   MAYUSRVE() %>% 
     select(input$columntoselect) %>% 
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
     naniar::miss_var_summary()
 })
 ```

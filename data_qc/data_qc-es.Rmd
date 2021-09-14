@@ -133,7 +133,8 @@ renderUI({
 
 <!-- Slider zone -->
 
-Descargar Base Editada
+Descargar Base 
+<!-- Editada -->
 
 ```{r}
 
@@ -190,7 +191,7 @@ DT::renderDT({
 
 ```
 
-Categoricas
+Categóricas
 =====================================
 
 ```{r}

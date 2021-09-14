@@ -169,11 +169,11 @@ Datos 2
 DT::renderDT({
   MAYUSRVE() %>% 
     select(input$columntoselect) %>% 
-  mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
-  DT::datatable(
-    options = list(
-		language = list(
-		  url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 
 ```

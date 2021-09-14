@@ -1,5 +1,5 @@
 ---
-title: "Quality Control"
+title: "Control de Calidad"
 output: 
   flexdashboard::flex_dashboard:
     theme: flatly
@@ -57,7 +57,7 @@ INOUTZONE {.sidebar}
 
 ```{r}
 fileInput(inputId = "InputMAYUS",
-          label = "Choose CSV File",
+          label = "Elige un archivo CSV",
           multiple = TRUE,
           accept = c("text/csv",
                      "text/comma-separated-values,text/plain",
@@ -81,7 +81,7 @@ observeEvent(eventExpr = input$apply,
 
 renderUI({
   pickerInput(inputId = 'columntoselect',
-            label = 'Columns to select', 
+            label = 'Columnas a seleccionar', 
             choices = colnames(MAYUSRVE()),
             options = list(`actions-box` = TRUE),
             multiple = T, 
@@ -91,7 +91,7 @@ renderUI({
 
 renderUI({
   pickerInput(inputId = 'columntofilter',
-            label = 'Column to filter', 
+            label = 'Columna a filtrar', 
             choices = colnames(MAYUSRVE()),
             options = list(`actions-box` = TRUE),
             multiple = F #, 
@@ -104,7 +104,7 @@ renderUI({
 ```{r}
 renderUI({
   pickerInput(inputId = 'optionstofilter',
-              label = 'Categories to filter', 
+              label = 'Categorias a filtrar', 
               choices = MAYUSRVE() %>% 
                 dplyr::select(input$columntofilter) %>%
                 unique() %>% 
@@ -127,7 +127,7 @@ renderUI({
 
 <!-- Slider zone -->
 
-Download Edited Dataset
+Descargar Base Editada
 
 ```{r}
 
@@ -146,7 +146,7 @@ downloadHandler(
 )
 ```
 
-Hands On
+Datos 1
 =====================================
 
 <!-- Results zone -->
@@ -159,7 +159,7 @@ rHandsontableOutput("hot")
 ```
 
 
-Data
+Datos 2
 ===================================
 
 <!-- Results zone -->
@@ -172,12 +172,13 @@ DT::renderDT({
   mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
   DT::datatable(
     options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+		language = list(
+		  url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 
 ```
 
-Categorical
+Categoricas
 =====================================
 
 ```{r}
@@ -187,7 +188,7 @@ renderPlot({
 })
 ```
 
-Continuous 
+Contínuas 
 ====================================
 
 ```{r}
@@ -198,7 +199,7 @@ renderPlot({
 
 ```
 
-Dictionary
+Diccionario
 ==================================
 
 Row {data-height=1000}
@@ -214,7 +215,7 @@ renderUI({
 ```
 
 
-Detailed
+Detallado
 =====================================
 
 Row {.tabset}
@@ -288,7 +289,7 @@ DT::renderDT({
 ```
 
 
-Mixed
+Mixto
 =====================================
 
 ```{r}
@@ -296,15 +297,16 @@ Mixed
 library(summarytools)
 
 renderUI({
-  print(dfSummary(MAYUSRVE(),
-            plain.ascii = FALSE, 
-                        style = "grid", 
-                        graph.magnif = 0.75, 
-                        valid.col = FALSE, 
-                        tmp.img.dir = "/tmp"), 
-      method = 'render',
-      headings = FALSE,
-      bootstrap.css = FALSE)
+  print(dfSummary(MAYUSRVE() %>% 
+                    select(input$columntoselect),
+                  plain.ascii = FALSE, 
+                  style = "grid", 
+                  graph.magnif = 0.75, 
+                  valid.col = FALSE, 
+                  tmp.img.dir = "/tmp"), 
+        method = 'render',
+        headings = FALSE,
+        bootstrap.css = FALSE)
 })
 
 ```
@@ -322,8 +324,9 @@ Row {.tabset data-height=1000}
 
 renderPrint({
   compareGroups::compareGroups(formula = all ~ .,
-                             data = MAYUSRVE() %>% 
-                               mutate(all="TRUE")) %>% 
+                               data = MAYUSRVE() %>% 
+                                 select(input$columntoselect) %>% 
+                                 mutate(all="TRUE")) %>% 
     compareGroups::createTable(show.p.overall = F)
 })
 
@@ -340,16 +343,20 @@ __Use compareGroups__ http://www.comparegroups.eu/wui
 ![](img/comparegroups.PNG)
 
 
-Detect
+Detectar
 =====================================
 
 Row {.tabset data-height=1000}
 -----------------------------------------------------------------------
 
 
-### Duplicated observations
+### Observaciones Duplicadas
 
-Defined as complete rows with the same values
+Definidos como filas completas con los mismos valores para 
+todas las variables incluidas.
+
+__Advertencia:__ A menor número de variables incluidas, 
+más duplicados se encontrarán.
 
 ```{r}
 # data_input <- mdr_cases
@@ -359,62 +366,63 @@ Defined as complete rows with the same values
 
 #which observations are replicates?
 DT::renderDT({
-MAYUSRVE() %>%   
-  group_by_all() %>% 
-  filter(n()>1) %>% 
-  # arrange(hash_short) %>%
-  ungroup()
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>%   
+    group_by_all() %>% 
+    filter(n()>1) %>% 
+    # arrange(hash_short) %>%
+    ungroup()
 })
 ```
 
-### Missing values
+### Valores Perdidos
 
-Defined as observations inside a variable without values
+Definidos como observaciones dentro de una variable sin valores.
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>% 
-  naniar::miss_var_summary()
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>% 
+    naniar::miss_var_summary()
 })
 ```
 
-Definitions
+Definiciones
 =====================================
 
-__Duplicated observations__
+__Observaciones Duplicadas__
 
-Defined as complete rows with the same values.
+Filas completas con los mismos valores para 
+todas las variables incluidas.
 
-__Missing values__
+__Valores Perdidos__
 
-Defined as observations inside a variable without values.
+Observaciones dentro de una variable sin valores.
 
+__Valores Inconsistentes__
 
-__Inconsistent values__
+Observaciones con valores que no son válidos cuando 
+son comparados con otras variables.
 
-Defined as observations with values that are not valid when 
-compared with other variables.
+__Valores Implausibles__
 
-
-__Implausible values__
-
-Defined as observations with values that are not valid within
-the plausible range of values in a determined scale.
+Observaciones con valores que no son válidos dentro
+de los rangos plausibles en una determinada escala.
 
 
-About
+Acerca
 =====================================
 
-__Contact__
+__Contacto__
 
 Andree Valle Campos | 
 [`@avallecam`](https://twitter.com/avallecam) |
 avallecam@gmail.com
 
-Project Link: https://github.com/avallecam/followdash-qctest
+Enlace del proyecto: https://github.com/avallecam/followdash-qctest
 
-__Acknowledgements__
+__Agradecimientos__
 
-Many thanks to the Centro Nacional de Epidemiología, Prevención y Control 
+Gracias al Centro Nacional de Epidemiología, Prevención y Control 
 de Enfermedades [(CDC Perú)](https://www.dge.gob.pe/portalnuevo/)
-for the opportunity to work on this project.
+por la oportunidad de trabajar en este proyecto.

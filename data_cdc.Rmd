@@ -192,7 +192,7 @@ Continuous
 
 ```{r}
 renderPlot({
-  d <- describe(MAYUSRVE())
+  d <- describe(MAYUSRVE() %>% select(input$columntoselect))
   plot(d)$Continuous
 })
 
@@ -207,7 +207,8 @@ Row {data-height=1000}
 ```{r}
 
 renderUI({
-  html(contents(MAYUSRVE()), maxlevels=10, levelType='table')
+  html(contents(MAYUSRVE() %>% select(input$columntoselect)), 
+       maxlevels=10, levelType='table')
 })
 
 ```
@@ -226,12 +227,14 @@ library(rlang)
 
 DT::renderDT({
   MAYUSRVE() %>% 
-  select_if(.predicate = is.character) %>%
-  skimr::skim() %>% 
+    select(input$columntoselect) %>% 
+    select_if(.predicate = is.character) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 ```
 
@@ -239,13 +242,15 @@ DT::renderDT({
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>%
-  select_if(.predicate = is.Date) %>%
-  skimr::skim() %>% 
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>%
+    select_if(.predicate = is.Date) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 ```
 
@@ -253,13 +258,15 @@ MAYUSRVE() %>%
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>%
-  select_if(.predicate = is.logical) %>%
-  skimr::skim() %>% 
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>%
+    select_if(.predicate = is.logical) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 ```
 
@@ -268,13 +275,15 @@ MAYUSRVE() %>%
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>%
-  select_if(.predicate = is.numeric) %>%
-  skimr::skim() %>% 
+  MAYUSRVE() %>%
+    select(input$columntoselect) %>%
+    select_if(.predicate = is.numeric) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
 })
 ```
 

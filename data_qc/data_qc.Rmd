@@ -5,6 +5,8 @@ output:
     theme: flatly
     orientation: rows
     vertical_layout: scroll
+    social: menu
+    source_code: embed
     # favicon: "img/favicon.png"
 runtime: shiny
 editor_options: 
@@ -19,6 +21,7 @@ library(rhandsontable)
 library(palmerpenguins)
 library(Hmisc)
 library(lubridate)
+library(shinyWidgets)
 
 # MAYUS <- palmerpenguins::penguins
 
@@ -73,7 +76,63 @@ observeEvent(eventExpr = input$apply,
 
 <!-- Slider zone -->
 
-Download Edited Dataset
+```{r}
+
+renderUI({
+  pickerInput(inputId = 'columntoselect',
+            label = 'Columns to select', 
+            choices = colnames(MAYUSRVE()),
+            options = list(`actions-box` = TRUE),
+            multiple = T, 
+            selected = colnames(MAYUSRVE())
+            )
+})
+
+renderUI({
+  pickerInput(inputId = 'columntofilter',
+            label = 'Column to filter', 
+            choices = colnames(MAYUSRVE()),
+            options = list(`actions-box` = TRUE),
+            multiple = F, 
+            selected = colnames(MAYUSRVE())[1]
+            )
+})
+
+```
+
+```{r}
+renderUI({
+  pickerInput(inputId = 'optionstofilter',
+              label = 'Categories to filter', 
+              choices = MAYUSRVE() %>% 
+                dplyr::select(input$columntofilter) %>%
+                unique() %>% 
+                rownames_to_column() %>% 
+                pivot_wider(names_from = input$columntofilter,
+                            values_from = rowname) %>% 
+                colnames()
+              # count(input$columntofilter) %>%
+                # pull(var = 1) %>% 
+                # as.character()
+              ,
+            options = list(`actions-box` = TRUE),
+            multiple = T, 
+            selected = MAYUSRVE() %>% 
+                dplyr::select(input$columntofilter) %>%
+                unique() %>% 
+                rownames_to_column() %>% 
+                pivot_wider(names_from = input$columntofilter,
+                            values_from = rowname) %>% 
+                colnames()
+            )
+})
+```
+
+
+<!-- Slider zone -->
+
+Download Dataset
+<!-- Edited -->
 
 ```{r}
 
@@ -89,26 +148,7 @@ downloadHandler(
 )
 ```
 
-
-
 Data
-===================================
-
-<!-- Results zone -->
-
-```{r}
-
-DT::renderDT({
-  MAYUSRVE() %>% 
-  mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
-  DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
-})
-
-```
-
-Hands On
 =====================================
 
 <!-- Results zone -->
@@ -120,12 +160,41 @@ output$hot = renderRHandsontable({
 rHandsontableOutput("hot")
 ```
 
+
+Search
+===================================
+
+<!-- Results zone -->
+
+```{r}
+
+# ref: https://www.youtube.com/watch?v=MBNdyRQIvE4
+
+DT::renderDT({
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>% 
+    # filter(!!rlang::sym(input$columntofilter) %in% 
+    #          input$optionstofilter) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>%
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable() 
+})
+
+
+```
+
+
 Categorical
 =====================================
 
 ```{r}
 renderPlot({
-  d <- describe(MAYUSRVE())
+  d <- describe(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)))
   plot(d)$Categorical
 })
 ```
@@ -135,7 +204,11 @@ Continuous
 
 ```{r}
 renderPlot({
-  d <- describe(MAYUSRVE())
+  d <- describe(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)))
   plot(d)$Continuous
 })
 
@@ -150,7 +223,12 @@ Row {data-height=1000}
 ```{r}
 
 renderUI({
-  html(contents(MAYUSRVE()), maxlevels=10, levelType='table')
+  html(contents(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter))), 
+    maxlevels=10, levelType='table')
 })
 
 ```
@@ -169,12 +247,13 @@ library(rlang)
 
 DT::renderDT({
   MAYUSRVE() %>% 
-  select_if(.predicate = is.character) %>%
-  skimr::skim() %>% 
+    select(input$columntoselect) %>% 
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
+    select_if(.predicate = is.character) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
-    DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+    DT::datatable() 
 })
 ```
 
@@ -182,13 +261,14 @@ DT::renderDT({
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>%
-  select_if(.predicate = is.Date) %>%
-  skimr::skim() %>% 
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
+    select_if(.predicate = is.Date) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
-    DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+    DT::datatable() 
 })
 ```
 
@@ -196,13 +276,14 @@ MAYUSRVE() %>%
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>%
-  select_if(.predicate = is.logical) %>%
-  skimr::skim() %>% 
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
+    select_if(.predicate = is.logical) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
-    DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+    DT::datatable() 
 })
 ```
 
@@ -211,13 +292,14 @@ MAYUSRVE() %>%
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>%
-  select_if(.predicate = is.numeric) %>%
-  skimr::skim() %>% 
+  MAYUSRVE() %>%
+    select(input$columntoselect) %>%
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
+    select_if(.predicate = is.numeric) %>%
+    skimr::skim() %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
-    DT::datatable(
-    options = list(
-		language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+    DT::datatable() 
 })
 ```
 
@@ -230,15 +312,19 @@ Mixed
 library(summarytools)
 
 renderUI({
-  print(dfSummary(MAYUSRVE(),
-            plain.ascii = FALSE, 
-                        style = "grid", 
-                        graph.magnif = 0.75, 
-                        valid.col = FALSE, 
-                        tmp.img.dir = "/tmp"), 
-      method = 'render',
-      headings = FALSE,
-      bootstrap.css = FALSE)
+  print(dfSummary(
+    MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)),
+    plain.ascii = FALSE, 
+    style = "grid", 
+    graph.magnif = 0.75, 
+    valid.col = FALSE, 
+    tmp.img.dir = "/tmp"), 
+    method = 'render',
+    headings = FALSE,
+    bootstrap.css = FALSE)
 })
 
 ```
@@ -255,9 +341,13 @@ Row {.tabset data-height=1000}
 ```{r}
 
 renderPrint({
-  compareGroups::compareGroups(formula = all ~ .,
-                             data = MAYUSRVE() %>% 
-                               mutate(all="TRUE")) %>% 
+  compareGroups::compareGroups(
+    formula = all ~ .,
+    data = MAYUSRVE() %>% 
+      select(input$columntoselect) %>% 
+      filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                             input$optionstofilter)) %>% 
+      mutate(all="TRUE")) %>% 
     compareGroups::createTable(show.p.overall = F)
 })
 
@@ -285,6 +375,9 @@ Row {.tabset data-height=1000}
 
 Defined as complete rows with the same values
 
+__Warning:__ The less number of variables included, 
+more duplicates may be found.
+
 ```{r}
 # data_input <- mdr_cases
 # #number of raw and distinct observations
@@ -293,11 +386,14 @@ Defined as complete rows with the same values
 
 #which observations are replicates?
 DT::renderDT({
-MAYUSRVE() %>%   
-  group_by_all() %>% 
-  filter(n()>1) %>% 
-  # arrange(hash_short) %>%
-  ungroup()
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>%  
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
+    group_by_all() %>% 
+    filter(n()>1) %>% 
+    # arrange(hash_short) %>%
+    ungroup()
 })
 ```
 
@@ -307,8 +403,12 @@ Defined as observations inside a variable without values
 
 ```{r}
 DT::renderDT({
-MAYUSRVE() %>% 
-  naniar::miss_var_summary()
+  MAYUSRVE() %>% 
+    select(input$columntoselect) %>% 
+    filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
+                           input$optionstofilter)) %>% 
+    naniar::miss_var_summary() %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2))
 })
 ```
 
@@ -317,22 +417,23 @@ Definitions
 
 __Duplicated observations__
 
-Defined as complete rows with the same values.
+Complete rows with the same values for 
+all the variables included.
 
 __Missing values__
 
-Defined as observations inside a variable without values.
+Observations inside a variable without values.
 
 
 __Inconsistent values__
 
-Defined as observations with values that are not valid when 
+Observations with values that are not valid when 
 compared with other variables.
 
 
 __Implausible values__
 
-Defined as observations with values that are not valid within
+Observations with values that are not valid within
 the plausible range of values in a determined scale.
 
 

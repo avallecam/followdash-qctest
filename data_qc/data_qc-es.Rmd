@@ -5,6 +5,8 @@ output:
     theme: flatly
     orientation: rows
     vertical_layout: scroll
+    social: menu
+    source_code: embed
     # favicon: "img/favicon.png"
 runtime: shiny
 editor_options: 
@@ -395,7 +397,7 @@ Definidos como filas completas con los mismos valores para
 todas las variables incluidas.
 
 __Advertencia:__ A menor número de variables incluidas, 
-más duplicados se encontrarán.
+más duplicados se podrían encontrar.
 
 ```{r}
 # data_input <- mdr_cases
@@ -412,7 +414,11 @@ DT::renderDT({
     group_by_all() %>% 
     filter(n()>1) %>% 
     # arrange(hash_short) %>%
-    ungroup()
+    ungroup() %>% 
+    DT::datatable(
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')))
 })
 ```
 
@@ -427,7 +433,11 @@ DT::renderDT({
     filter(magrittr::is_in(!!rlang::sym(input$columntofilter),
                            input$optionstofilter)) %>% 
     naniar::miss_var_summary() %>% 
-    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2))
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')))
 })
 ```
 

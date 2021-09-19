@@ -138,25 +138,25 @@ renderUI({
 
 <!-- Slider zone -->
 
-Descargar Base 
-<!-- Editada -->
+<!-- Descargar Base  -->
+<!-- <!-- Editada --> -->
 
-```{r}
+<!-- ```{r} -->
 
-downname <- str_c(Sys.time() %>% 
-                    janitor::make_clean_names(),
-                  "-edited.csv")
+<!-- downname <- str_c(Sys.time() %>%  -->
+<!--                     janitor::make_clean_names(), -->
+<!--                   "-edited.csv") -->
 
-downloadButton(outputId = "StarWarsDownload", 
-               label = "Star Wars Download")
-downloadHandler(
-  filename = function(){downname},
-  # filename = function(){"Star_Wars_Download.csv"},
-  content = function(file){
-    write.csv(MAYUSRVE(), file)
-  }
-)
-```
+<!-- downloadButton(outputId = "StarWarsDownload",  -->
+<!--                label = "Star Wars Download") -->
+<!-- downloadHandler( -->
+<!--   filename = function(){downname}, -->
+<!--   # filename = function(){"Star_Wars_Download.csv"}, -->
+<!--   content = function(file){ -->
+<!--     write.csv(MAYUSRVE(), file) -->
+<!--   } -->
+<!-- ) -->
+<!-- ``` -->
 
 Datos
 =====================================

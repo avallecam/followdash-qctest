@@ -201,10 +201,10 @@ Control
 
 ```{r}
 eess_data <- tibble::tribble(
-  ~eess_codigo,	~eess_diresa,	~eess_red,	~eess_microred,	~eess_nombre,	
-  ~eess_cat,	~eess_distrito,	~eess_depa,	~eess_prov,
-  ~eess_atencion_mes,	~eess_madres,	
-  ~eess_jefes_eess,	~eess_personal,
+  ~.codigo,	~.diresa,	~.red,	~.microred,	~.nombre,	
+  ~.cat,	~.distrito,	~.depa,	~.prov,
+  ~.atencion_mes,	~.madres,	
+  ~.jefes_eess,	~.personal,
   "es010101001",	"Ancash",	"HUAYLAS SUR",	"CAJACAY",	"P.S. RAQUIA",	
   "I-1",	"Antonio Raymondi",	"Ancash",	"Bolognesi",	27,	9,	1,	1,
   "es010101002",	"Ancash",	"HUAYLAS SUR",	"CAJACAY",	"C.S. CAJACAY",	
@@ -267,7 +267,7 @@ eess_data <- tibble::tribble(
 )
 
 # eess_data %>% tibble::view()
-# eess_data %>% select(eess_depa:eess_personal)
+# eess_data %>% select(.depa:.personal)
 # eess_data
 ```
 
@@ -323,10 +323,10 @@ renderUI({
 
 ```{r}
 eess_data_show <- eess_data
-eess_data_show$eess_atencion_mes <- 
-  color_tile("white", "orange")(eess_data_show$eess_atencion_mes)
-eess_data_show$eess_madres <- 
-  color_bar("lightgreen")(eess_data_show$eess_madres)
+eess_data_show$.atencion_mes <- 
+  color_tile("white", "orange")(eess_data_show$.atencion_mes)
+eess_data_show$.madres <- 
+  color_bar("lightgreen")(eess_data_show$.madres)
 ```
 
 <!-- Column {.tabset} -->
@@ -342,7 +342,10 @@ DT::renderDT({
     eess_data %>% 
     filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
                            input$optionstofiltercontrol)) %>%
-    select(-eess_codigo) %>% 
+    # select(-.codigo) %>% 
+    #remove department, province, district
+    select(-.depa,-.prov,-.distrito) %>% 
+    # rename_all(.funs = str_replace(.,"eess","")) %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
       options = list(
@@ -359,7 +362,7 @@ DT::renderDT({
   eess_data_show %>% 
     # filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
     #                        input$optionstofiltercontrol)) %>% 
-    select(-eess_codigo) %>% 
+    select(-.codigo) %>% 
     kable("html", escape = F) %>% 
     # kbl(eess_data, escape = F) %>%
     kable_styling("hover")

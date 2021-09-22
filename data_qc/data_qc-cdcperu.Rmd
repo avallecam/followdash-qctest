@@ -271,20 +271,31 @@ eess_data <- tibble::tribble(
 # eess_data
 ```
 
+Row {data-height=80}
+-------------------------------------
+
+### Columna a filtrar
+
 ```{r}
 renderUI({
   pickerInput(inputId = 'columntofiltercontrol',
-            label = 'Columna a filtrar', 
+              # label = '', 
+            # label = 'Columna a filtrar', 
             choices = colnames(eess_data),
             options = list(`actions-box` = TRUE),
             multiple = F, 
             selected = colnames(eess_data)[2]
             )
 })
+```
 
+### Categorias a filtrar
+
+```{r}
 renderUI({
   pickerInput(inputId = 'optionstofiltercontrol',
-              label = 'Categorias a filtrar', 
+              # label = '', 
+              # label = 'Categorias a filtrar', 
               choices = eess_data %>% 
                 dplyr::select(input$columntofiltercontrol) %>%
                 unique() %>% 
@@ -309,20 +320,43 @@ renderUI({
 })
 ```
 
+
 ```{r}
-eess_data$eess_atencion_mes <- 
-  color_tile("white", "orange")(eess_data$eess_atencion_mes)
-eess_data$eess_madres <- 
-  color_bar("lightgreen")(eess_data$eess_madres)
+eess_data_show <- eess_data
+eess_data_show$eess_atencion_mes <- 
+  color_tile("white", "orange")(eess_data_show$eess_atencion_mes)
+eess_data_show$eess_madres <- 
+  color_bar("lightgreen")(eess_data_show$eess_madres)
 ```
 
-Column {.tabset}
+<!-- Column {.tabset} -->
+Row {.tabset data-height=1500}
 -------------------------------------
 
+### Evaluar
+
+```{r}
+
+DT::renderDT({
+  # MAYUSRVE() %>% 
+    eess_data %>% 
+    filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
+                           input$optionstofiltercontrol)) %>%
+    select(-eess_codigo) %>% 
+    mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
+    DT::datatable(
+      options = list(
+        language = list(
+          url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
+})
+```
+
+
+### Ver
 
 ```{r}
 # renderText({
-  eess_data %>% 
+  eess_data_show %>% 
     # filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
     #                        input$optionstofiltercontrol)) %>% 
     select(-eess_codigo) %>% 

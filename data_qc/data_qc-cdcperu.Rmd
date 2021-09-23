@@ -184,6 +184,10 @@ rHandsontableOutput("hot")
 Buscar
 ===================================
 
+Row {data-height=1500}
+-------------------------------------
+
+
 <!-- Results zone -->
 
 ```{r}

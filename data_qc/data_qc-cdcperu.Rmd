@@ -65,7 +65,7 @@ MAYUSRVE = reactive({
 })
 ```
 
-PANELCONTROL {.sidebar}
+PANELCONTROL {.sidebar data-width=400}
 ===================================
 
 <!-- Slider zone -->
@@ -203,6 +203,7 @@ DT::renderDT({
                            input$optionstofilter)) %>%
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
+      filter = 'bottom',
       options = list(
         language = list(
           url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json'))) 
@@ -295,54 +296,26 @@ eess_data <- tibble::tribble(
 Row {data-height=350}
 -------------------------------------
 
-### Referencia: Columna a filtrar
+### Referencia: Elige Nivel a evaluar
 
 ```{r}
 renderUI({
   pickerInput(inputId = 'columntofiltercontrol',
               # label = '', 
             # label = 'Columna a filtrar', 
-            choices = colnames(eess_data),
+            choices = eess_data %>% 
+              select(starts_with(".codigo")) %>% 
+              colnames(),
             options = list(`actions-box` = TRUE),
             multiple = F, 
-            selected = colnames(eess_data)[1]
-            )
-})
-```
-
-<!-- ### Referencia: Categorias a filtrar -->
-
-```{r,eval=FALSE}
-renderUI({
-  pickerInput(inputId = 'optionstofiltercontrol',
-              # label = '', 
-              # label = 'Categorias a filtrar', 
-              choices = eess_data %>% 
-                dplyr::select(input$columntofiltercontrol) %>%
-                unique() %>% 
-                rownames_to_column() %>% 
-                pivot_wider(names_from = input$columntofiltercontrol,
-                            values_from = rowname) %>% 
-                colnames()
-              # count(input$columntofilter) %>%
-                # pull(var = 1) %>% 
-                # as.character()
-              ,
-            options = list(`actions-box` = TRUE),
-            multiple = T, 
             selected = eess_data %>% 
-                dplyr::select(input$columntofiltercontrol) %>%
-                unique() %>% 
-                rownames_to_column() %>% 
-                pivot_wider(names_from = input$columntofiltercontrol,
-                            values_from = rowname) %>% 
-                colnames()
+              select(starts_with(".codigo")) %>% 
+              colnames() %>% pluck(1)
             )
 })
 ```
 
-
-### Evaluación: Columna a seleccionar
+### Evaluación: Elige la columna equivalente
 
 ```{r}
 
@@ -358,7 +331,7 @@ renderUI({
 ```
 
 
-### Denominador: Columna a usar
+### Denominador: Elige la variable apropiada
 
 ```{r}
 renderUI({
@@ -427,7 +400,7 @@ DT::renderDT({
 ```
 
 
-### Ver
+### Referencia
 
 ```{r}
 # renderText({
@@ -458,7 +431,7 @@ renderPlot({
 })
 ```
 
-Contínuas 
+Continuas 
 ====================================
 
 ```{r}

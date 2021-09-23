@@ -278,17 +278,24 @@ eess_data <- tibble::tribble(
   "es020101016",	"Piura",	"Bajo Piura",	"Sechura",	"P.S. II Letira",	
   "I-2",	"Vice",	"Piura",	"Sechura",	48,	24,	1,	1,
   
-)
+) %>% 
+  mutate(.codigo_diresa = str_replace(.codigo,
+                                      "(....)(.+)","\\1"),
+         .codigo_red = str_replace(.codigo,
+                                   "(......)(.+)","\\1"),
+         .codigo_microred = str_replace(.codigo,
+                                        "(........)(.+)","\\1")) %>% 
+  select(starts_with(".codigo_"),everything())
 
 # eess_data %>% tibble::view()
 # eess_data %>% select(.depa:.personal)
 # eess_data
 ```
 
-Row {data-height=80}
+Row {data-height=350}
 -------------------------------------
 
-### Columna a filtrar
+### Referencia: Columna a filtrar
 
 ```{r}
 renderUI({
@@ -298,14 +305,14 @@ renderUI({
             choices = colnames(eess_data),
             options = list(`actions-box` = TRUE),
             multiple = F, 
-            selected = colnames(eess_data)[2]
+            selected = colnames(eess_data)[1]
             )
 })
 ```
 
-### Categorias a filtrar
+<!-- ### Referencia: Categorias a filtrar -->
 
-```{r}
+```{r,eval=FALSE}
 renderUI({
   pickerInput(inputId = 'optionstofiltercontrol',
               # label = '', 
@@ -335,6 +342,42 @@ renderUI({
 ```
 
 
+### Evaluación: Columna a seleccionar
+
+```{r}
+
+renderUI({
+  pickerInput(inputId = 'columntofilterevaluar',
+            # label = 'Columna a seleccionar', 
+            choices = colnames(MAYUSRVE()),
+            options = list(`actions-box` = TRUE),
+            multiple = F, 
+            selected = colnames(MAYUSRVE())[1]
+            )
+})
+```
+
+
+### Denominador: Columna a usar
+
+```{r}
+renderUI({
+  pickerInput(inputId = 'columntofilterdenomin',
+              # label = '', 
+            # label = 'Columna a filtrar', 
+            choices = eess_data %>% 
+              select(.atencion_mes:.personal) %>% 
+              colnames(),
+            options = list(`actions-box` = TRUE),
+            multiple = F, 
+            selected = eess_data %>% 
+              select(.atencion_mes:.personal) %>% 
+              colnames() %>% pluck(2)
+            )
+})
+```
+
+
 ```{r}
 eess_data_show <- eess_data
 eess_data_show$.atencion_mes <- 
@@ -354,12 +397,27 @@ Row {.tabset data-height=1500}
 DT::renderDT({
   # MAYUSRVE() %>% 
     eess_data %>% 
-    filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
-                           input$optionstofiltercontrol)) %>%
+    # filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
+    #                        input$optionstofiltercontrol)) %>%
     # select(-.codigo) %>% 
     #remove department, province, district
     select(-.depa,-.prov,-.distrito) %>% 
     # rename_all(.funs = str_replace(.,"eess","")) %>% 
+    # group by
+    # solve
+    group_by(!!rlang::sym(input$columntofiltercontrol)) %>%
+    summarise(across(.cols = c(.atencion_mes,.madres,
+                               .jefes_eess,.personal),.fns = sum)) %>% 
+    # realizar un left join!!!!!
+    left_join(
+      MAYUSRVE() %>% 
+        count(!!rlang::sym(input$columntofilterevaluar)) %>% 
+      rename(!!rlang::sym(input$columntofiltercontrol) := 
+               !!rlang::sym(input$columntofilterevaluar))
+    ) %>% 
+    mutate(
+      porcentaje = (n / !!rlang::sym(input$columntofilterdenomin))*100
+    ) %>% 
     mutate_if(.predicate = is.numeric,.funs = ~round(.x,2)) %>% 
     DT::datatable(
       options = list(
@@ -376,7 +434,7 @@ DT::renderDT({
   eess_data_show %>% 
     # filter(magrittr::is_in(!!rlang::sym(input$columntofiltercontrol),
     #                        input$optionstofiltercontrol)) %>% 
-    select(-.codigo) %>% 
+    select(-starts_with(".codigo")) %>% 
     kable("html", escape = F) %>% 
     # kbl(eess_data, escape = F) %>%
     kable_styling("hover")

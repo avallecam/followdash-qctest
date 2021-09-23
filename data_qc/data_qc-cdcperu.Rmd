@@ -39,6 +39,16 @@ MAYUS <- dplyr::bind_rows(outbreaks::ebola_sim_clean$linelist,
 ```
 
 ```{r}
+library(DT)
+options(DT.options = list(scrollY="300px",
+                          scrollX="300px", 
+                          pageLength = 100#, 
+                          # autoWidth = TRUE
+                          ))
+```
+
+
+```{r}
 updateUpload = reactive({
   
 })
@@ -427,7 +437,7 @@ Detallado
 Row {.tabset}
 -------------------------------------
 
-### Is.Character
+### Is.Character 
 
 ```{r}
 library(rlang)

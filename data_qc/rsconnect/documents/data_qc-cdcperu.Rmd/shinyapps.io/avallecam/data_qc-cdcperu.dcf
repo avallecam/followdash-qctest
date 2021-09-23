@@ -5,9 +5,9 @@ account: avallecam
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4685056
-bundleId: 5059616
+bundleId: 5064992
 url: https://avallecam.shinyapps.io/data_qc-cdcperu/
-when: 1632308503.60835
-lastSyncTime: 1632308503.60835
+when: 1632416634.44589
+lastSyncTime: 1632416634.44589
 asMultiple: FALSE
 asStatic: FALSE
